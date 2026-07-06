@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: demo-app
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: odf-storage-pvc
+  namespace: demo-app
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: odf-storage
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: odf-app-pod
+  namespace: demo-app
+  labels:
+    app: odf-storage-tester
+spec:
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: app-container
+      image: registry.access.redhat.com/ubi8/ubi-minimal:latest
+      command: [ "sleep", "infinity" ]
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: ["ALL"]
+      volumeMounts:
+        - mountPath: "/mnt/data"
+          name: odf-volume
+  volumes:
+    - name: odf-volume
+      persistentVolumeClaim:
+        claimName: odf-storage-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: odf-app-service
+  namespace: demo-app
+spec:
+  type: ClusterIP
+  selector:
+    app: odf-storage-tester
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
