@@ -8,6 +8,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: odf-storage-pvc
   namespace: demo-app
+  labels:
+    app: dr-demo-app
 spec:
   accessModes:
     - ReadWriteOnce
