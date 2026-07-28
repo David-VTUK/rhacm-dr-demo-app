@@ -56,7 +56,7 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: odf-storage-tester
+    app: dr-demo-app
   ports:
     - name: http
       port: 8080
